@@ -1,0 +1,17 @@
+.App {
+  padding: 30px;
+  display: flex;
+}
+
+.App > div {
+  margin-right: 50px;
+}
+.active-filter{
+  background-color: darkorange;
+}
+.error{
+  color: red;
+}
+.errorInput{
+  border: 2px solid red;
+}
