@@ -35,22 +35,13 @@ function App() {
         ]
     })
 
-    // const [tasks, setTasks] = useState<Array<TaskType>>([
-    //     {id: v1(), checked: true, task: 'HTML'},
-    //     {id: v1(), checked: true, task: 'CSS'},
-    //     {id: v1(), checked: false, task: 'React'},
-    // ])
-
-    // const [todoListFilter, setTodoListFilter] = useState<FiltersValueType>('all')
-
-    function changeToDoListFilter(newFilterValue: FiltersValueType, toDoListId: string ) {
+    function changeToDoListFilter(newFilterValue: FiltersValueType, toDoListId: string   ) {
         // setToDOLists(toDoLists.map(tl => tl.id === toDoListId ? {...tl, filter: newFilterValue}:tl))
         const changeChecked = toDoLists.find(t => t.id === toDoListId)
         if(changeChecked){
             changeChecked.filter = newFilterValue
         }
         setToDOLists([...toDoLists])
-        // setTodoListFilter(newFilterValue)
     }
 
     // function getTusksForToDoList() {
