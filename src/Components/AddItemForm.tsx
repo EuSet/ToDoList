@@ -1,13 +1,14 @@
 import React, {ChangeEvent, useState} from 'react';
 import IconButton from "@material-ui/core/IconButton";
-import {AddBox} from "@material-ui/icons";
 import {TextField} from "@material-ui/core";
+import PlusOneIcon from '@material-ui/icons/PlusOne';
 
 type PropsType = {
     addNewItem: (title: string) => void
 }
 
-export const AddItemForm = (props: PropsType) => {
+export const AddItemForm = React.memo( (props: PropsType) => {
+    // console.log('AddItemForm')
     const addItem = () => {
         if (inputValue) {
             props.addNewItem(inputValue.trim())
@@ -18,23 +19,26 @@ export const AddItemForm = (props: PropsType) => {
     }
     const changeInputValue = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)
-        setError('')
+        if(error){
+            setError('')
+        }
     }
     const [inputValue, setInputValue] = useState('')
     const [error, setError] = useState('')
     return <div>
-        <TextField variant={'outlined'} label={'Title'} error={!!error}
+        <TextField variant={'standard'} label={'Title'} error={!!error}
                    onChange={changeInputValue}
+                   onBlur={() => {setError('')}}
                    onKeyPress={(e) => {
                        if (e.key === 'Enter') {
                            addItem()
                        }
                    }}
                    value={inputValue}/>
-        <IconButton color={'primary'} onClick={addItem}><AddBox/></IconButton>
+        <IconButton color={'primary'} onClick={addItem}><PlusOneIcon color={"primary"}/></IconButton>
         <div>
             <span className={'error'}>{error}</span>
         </div>
 
     </div>
-}
+})

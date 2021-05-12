@@ -1,23 +1,24 @@
-import React from "react";
-import {FiltersValueType} from "../App";
+import React, {useCallback} from "react";
 import {AddItemForm} from "./AddItemForm";
 import {EditableSpan} from "./EditableSpan";
-import {Button, Checkbox} from "@material-ui/core";
+import {Button, ButtonGroup} from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
-import {Delete} from "@material-ui/icons";
+import DeleteSweepTwoToneIcon from "@material-ui/icons/DeleteSweepTwoTone";
+import {FiltersValueType} from "../App";
+import {Task} from "./Task";
 
 type ToDoListType = {
-    id:string
+    id: string
     title: string
     tasks: Array<TaskType>
-    removeTask: (id: string, toDoListId:string) => void
-    changeToDoListFilter: (newFilterValue: FiltersValueType, toDoListId:string) => void
-    getChangeCheckedTask:(id: string,toDoListId:string) => void
-    addNewTask:(title:string, toDoListId:string) => void
-    todoListFilter:FiltersValueType
-    removeToDo:(toDoListId:string) => void
-    changeTaskTitle: (title:string, id:string, toDoListId:string) => void
-    changeToDoListItem: (title:string, toDoListId:string) => void
+    removeTask: (id: string, toDoListId: string) => void
+    changeToDoListFilter: (newFilterValue: FiltersValueType, toDoListId: string) => void
+    getChangeCheckedTask: (id: string, toDoListId: string) => void
+    addNewTask: (title: string, toDoListId: string) => void
+    todoListFilter: FiltersValueType
+    removeToDo: (toDoListId: string) => void
+    changeTaskTitle: (title: string, id: string, toDoListId: string) => void
+    changeToDoListItem: (title: string, toDoListId: string) => void
 }
 export type TaskType = {
     id: string
@@ -25,46 +26,67 @@ export type TaskType = {
     task: string
 }
 
-export function ToDoList(props: ToDoListType) {
-    const mapTasksElements = props.tasks.map(t => {
-        const changeTitle = (title:string) => {
-            props.changeTaskTitle(title, t.id, props.id)
+export const ToDoList = React.memo( (
+    {id, addNewTask, changeToDoListFilter, changeTaskTitle, ...props}: ToDoListType) => {
+    console.log('todolist called')
+    const toDoListFilter = ():TaskType[] => {
+        switch (props.todoListFilter) {
+            case "completed":
+                return props.tasks.filter(t => t.checked)
+            case "active":
+                return props.tasks.filter(t => !t.checked)
+            default:
+                return props.tasks
         }
-        return <li style={t.checked ? {opacity: '0.5'} : {}} key={t.id}><Checkbox color={'primary'} onClick={() => {props.getChangeCheckedTask(t.id, props.id)}} checked={t.checked}/>
-        <EditableSpan changeTitle={changeTitle} title={t.task}/>
-            <IconButton onClick={() => {
-                props.removeTask(t.id, props.id)
-            }}><Delete/>
-            </IconButton>
-        </li>
+    }
+    const tasksAfterFilter = toDoListFilter()
+    const mapTasksElements = tasksAfterFilter.map(t => {
+        return <Task t={t}
+                     getChangeCheckedTask={props.getChangeCheckedTask}
+                     changeTitle={changeTaskTitle}
+                     removeTask={props.removeTask}
+                     id={id}
+                     key={t.id}
+        />
     })
-    const addNewItemTask = (title:string) => {
-        props.addNewTask(title,props.id)
+    const addNewItemTask = useCallback((title: string) => {
+        addNewTask(title, id)
+    },[id, addNewTask])
 
+    const addNewToDoTitle = (title: string) => {
+        props.changeToDoListItem(title, id)
     }
-    const addNewToDoTitle = (title:string) => {
-        props.changeToDoListItem(title,props.id)
-    }
+
+    const onAllClickHandler = useCallback(() =>
+        changeToDoListFilter('all', id),[changeToDoListFilter, id])
+    const onActiveClickHandler = useCallback(() =>
+        changeToDoListFilter('active', id),[changeToDoListFilter, id])
+    const onCompletedClickHandler = useCallback(() =>
+        changeToDoListFilter('completed', id),[changeToDoListFilter, id])
 
     return <div>
-        <h3><EditableSpan changeTitle={addNewToDoTitle} title={props.title}/> <IconButton onClick={() => {props.removeToDo(props.id)}}><Delete/></IconButton></h3>
+        <h3><EditableSpan changeTitle={addNewToDoTitle} title={props.title}/> <IconButton onClick={() => {
+            props.removeToDo(id)
+        }}><DeleteSweepTwoToneIcon color={"primary"}/></IconButton></h3>
         <AddItemForm addNewItem={addNewItemTask}/>
-        <ul style={{listStyle:'none'}}>
+        <ul style={{listStyle: 'none'}}>
             {mapTasksElements}
         </ul>
         <div>
-            <Button size={'small'} color={"primary"} variant={props.todoListFilter === 'all' ? 'outlined' : 'contained'} onClick={() => {
-                props.changeToDoListFilter('all', props.id)
-            }}>All
+            <ButtonGroup size={"small"} color={"primary"}>
+            <Button size={'small'} color={"primary"} variant={props.todoListFilter === 'all' ? 'contained' : 'outlined'}
+                    onClick={onAllClickHandler}>All
             </Button>
-            <Button size={'small'} color={"primary"} variant={props.todoListFilter === 'active' ? 'outlined' : 'contained'} onClick={() => {
-                props.changeToDoListFilter('active', props.id)
-            }}>Active
+            <Button size={'small'} color={"primary"}
+                    variant={props.todoListFilter === 'active' ? 'contained' : 'outlined'}
+                    onClick={onActiveClickHandler}>Active
             </Button>
-            <Button size={'small'} color={"primary"} variant={props.todoListFilter === 'completed' ? 'outlined' : 'contained'} onClick={() => {
-                props.changeToDoListFilter('completed', props.id)
-            }}>Completed
+            <Button size={'small'} color={"primary"}
+                    variant={props.todoListFilter === 'completed' ? 'contained' : 'outlined'}
+                    onClick={onCompletedClickHandler}
+            >Completed
             </Button>
+            </ButtonGroup>
         </div>
     </div>
-}
+})

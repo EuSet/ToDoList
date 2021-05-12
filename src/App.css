@@ -9,9 +9,9 @@
 /*.active-filter{*/
 /*  background-color: darkorange;*/
 /*}*/
-/*.error{*/
-/*  color: red;*/
-/*}*/
+.error{
+  color: red;
+}
 /*.errorInput{*/
 /*  border: 2px solid red;*/
 /*}*/
