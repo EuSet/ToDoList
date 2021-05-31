@@ -3,7 +3,7 @@ import IconButton from "@material-ui/core/IconButton";
 import {TextField} from "@material-ui/core";
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 
-type PropsType = {
+export type PropsType = {
     addNewItem: (title: string) => void
 }
 

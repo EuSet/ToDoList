@@ -4,8 +4,9 @@ import {EditableSpan} from "./EditableSpan";
 import {Button, ButtonGroup} from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteSweepTwoToneIcon from "@material-ui/icons/DeleteSweepTwoTone";
-import {FiltersValueType} from "../App";
 import {Task} from "./Task";
+import {TaskStatuses, TaskType} from "../api/toDoLists-api";
+import {FiltersValueType} from "../state/toDoLists-reducer";
 
 type ToDoListType = {
     id: string
@@ -20,11 +21,6 @@ type ToDoListType = {
     changeTaskTitle: (title: string, id: string, toDoListId: string) => void
     changeToDoListItem: (title: string, toDoListId: string) => void
 }
-export type TaskType = {
-    id: string
-    checked: boolean
-    task: string
-}
 
 export const ToDoList = React.memo( (
     {id, addNewTask, changeToDoListFilter, changeTaskTitle, ...props}: ToDoListType) => {
@@ -32,9 +28,9 @@ export const ToDoList = React.memo( (
     const toDoListFilter = ():TaskType[] => {
         switch (props.todoListFilter) {
             case "completed":
-                return props.tasks.filter(t => t.checked)
+                return props.tasks.filter(t => t.status === TaskStatuses.Completed)
             case "active":
-                return props.tasks.filter(t => !t.checked)
+                return props.tasks.filter(t => t.status === TaskStatuses.New)
             default:
                 return props.tasks
         }

@@ -1,7 +1,6 @@
-import {TaskType} from "../Components/ToDoList";
 import {v1} from "uuid";
 import {addToDoList, removeToDoList} from "./toDoLists-reducer";
-import {TaskStateType} from "../App";
+import {TaskPriorities, TaskStatuses, TaskType} from "../api/toDoLists-api";
 
 type ActionsType = ReturnType<typeof removeTask> |
     ReturnType<typeof addNewTask> |
@@ -9,7 +8,9 @@ type ActionsType = ReturnType<typeof removeTask> |
     ReturnType<typeof changeTaskTitle> |
     ReturnType<typeof removeToDoList> |
     ReturnType<typeof addToDoList>
-
+export type TaskStateType = {
+    [key: string]: Array<TaskType>
+}
 const initialState: TaskStateType ={}
 
 export const tasksReducer = (state:TaskStateType = initialState, action:ActionsType ): TaskStateType => {
@@ -20,25 +21,29 @@ export const tasksReducer = (state:TaskStateType = initialState, action:ActionsT
                 ...state
             }
         case "ADD_NEW_TASK":
-            const newTask: TaskType = {id: v1(), checked: false, task: action.title}
+            const newTask: TaskType = {
+                id: v1(), status: TaskStatuses.New, title: action.title, addedDate: '',
+                completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
+                startDate:'', todoListId:action.toDoListId
+            }
             return {
                 ...state, [action.toDoListId]: [newTask, ...state[action.toDoListId]]
             }
         case "CHANGE_CHECKED_TASK":
-           const updateChecked = state[action.toDoListId].map(t => {
+           const updateChecked:Array<TaskType> = state[action.toDoListId].map(t => {
                 if (t.id === action.id) {
                     // t.checked = !t.checked
-                    return {...t, checked: !t.checked}
+                    return {...t, status: t.status === 0 ? 2 : 0}
                 }
                 return t
             })
             return {
                 ...state, [action.toDoListId]:updateChecked
             }
-        case "CHANGE_TO_DO_LIST_FILTER":
+        case "CHANGE_TASK_TITLE":
             const updateTasks = state[action.toDoListId].map(t => {
                 if (t.id === action.id) {
-                    t.task = action.title
+                    t.title = action.title
                     return {...t, task: action.title}
                 }
                 return t
@@ -70,5 +75,5 @@ export const getChangeCheckedTask = (id: string, toDoListId: string) => {
     return {type: 'CHANGE_CHECKED_TASK', id, toDoListId} as const
 }
 export const changeTaskTitle = (title: string, id: string, toDoListId: string) => {
-    return {type: 'CHANGE_TO_DO_LIST_FILTER', title, id, toDoListId} as const
+    return {type: 'CHANGE_TASK_TITLE', title, id, toDoListId} as const
 }
