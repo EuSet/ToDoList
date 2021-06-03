@@ -7,7 +7,7 @@ import {TaskStatuses, TaskType} from "../api/toDoLists-api";
 
 type PropsType = {
     t:TaskType
-    getChangeCheckedTask:(id: string, toDoListId: string) => void
+    getChangeCheckedTask:(id: string, toDoListId: string, status:TaskStatuses) => void
     changeTitle: (title: string, id: string, toDoListId: string) => void
     removeTask: (id: string, toDoListId: string) => void
     id:string
@@ -17,7 +17,7 @@ export const Task = React.memo(({t, id, changeTitle, ...props}:PropsType) => {
         changeTitle(newTitle, id, t.id)
     },[id, changeTitle, t.id])
     return <div style={t.status === TaskStatuses.Completed ? {opacity: '0.5'} : {}} key={t.id}><Checkbox color={'primary'} onClick={() => {
-        props.getChangeCheckedTask(t.id, id)
+        props.getChangeCheckedTask(t.id, id, t.status === 0 ? 2 : 0)
     }} checked={t.status === TaskStatuses.Completed}/>
         <EditableSpan changeTitle={onChangeTaskTitle} title={t.title}/>
         <IconButton onClick={() => {

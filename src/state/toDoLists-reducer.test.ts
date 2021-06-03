@@ -1,5 +1,12 @@
 import {v1} from 'uuid';
-import {FiltersValueType, removeToDoList, toDoListCombineType, toDoListsReducer} from "./toDoLists-reducer";
+import {
+    addToDoList, changeToDoListItem,
+    FiltersValueType,
+    removeToDoList, setToDoLists,
+    toDoListCombineType,
+    toDoListsReducer
+} from "./toDoLists-reducer";
+import {ToDoListType} from "../api/toDoLists-api";
 
 let todolistId1: string
 let todolistId2: string
@@ -27,20 +34,19 @@ test('correct todolist should be removed', () => {
 });
 test('correct todolist should be added', () => {
 
-    let newTodolistTitle = "New Todolist";
-
-    const endState = toDoListsReducer(startState, {type: 'ADD_TO_DO_LIST', title: newTodolistTitle, newToDoLisId:v1()})
+    const newToDo:ToDoListType = {
+        id: 'toDoListId1', title: 'NewToDOList',  addedDate:'', order:0
+    }
+    const endState = toDoListsReducer(startState, addToDoList(newToDo))
 
     expect(endState.length).toBe(3);
-    expect(endState[0].title).toBe(newTodolistTitle);
+    expect(endState[0].title).toBe('NewToDOList');
 });
-test('correct todolist should change its name', () => {
+test('correct todolist should change name', () => {
 
-    let newTodolistTitle = "New Todolist";
-
-    const endState = toDoListsReducer(startState, {type: 'CHANGE_TO_DO_LIST_ITEM', title: newTodolistTitle, toDoListId: todolistId2})
+    const endState = toDoListsReducer(startState, changeToDoListItem("New Todolist", todolistId2))
     expect(endState[0].title).toBe("What to learn");
-    expect(endState[1].title).toBe(newTodolistTitle);
+    expect(endState[1].title).toBe("New Todolist");
 })
 test('correct filter of todolist should be changed', () => {
 
@@ -57,4 +63,8 @@ test('correct filter of todolist should be changed', () => {
     expect(endState[0].filter).toBe("all");
     expect(endState[1].filter).toBe(newFilter);
 });
-
+test('todolists should be set in state', () => {
+    const newState = toDoListsReducer([],setToDoLists(startState))
+    expect(newState.length).toBe(2)
+    expect(newState[0].filter).toBe('all')
+})

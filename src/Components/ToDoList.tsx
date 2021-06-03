@@ -1,4 +1,4 @@
-import React, {useCallback} from "react";
+import React, {useCallback, useEffect} from "react";
 import {AddItemForm} from "./AddItemForm";
 import {EditableSpan} from "./EditableSpan";
 import {Button, ButtonGroup} from "@material-ui/core";
@@ -7,6 +7,8 @@ import DeleteSweepTwoToneIcon from "@material-ui/icons/DeleteSweepTwoTone";
 import {Task} from "./Task";
 import {TaskStatuses, TaskType} from "../api/toDoLists-api";
 import {FiltersValueType} from "../state/toDoLists-reducer";
+import {useDispatch} from "react-redux";
+import {setTasksThunk} from "../state/tasks-reducer";
 
 type ToDoListType = {
     id: string
@@ -14,7 +16,7 @@ type ToDoListType = {
     tasks: Array<TaskType>
     removeTask: (id: string, toDoListId: string) => void
     changeToDoListFilter: (newFilterValue: FiltersValueType, toDoListId: string) => void
-    getChangeCheckedTask: (id: string, toDoListId: string) => void
+    getChangeCheckedTask: (id: string, toDoListId: string, status:TaskStatuses) => void
     addNewTask: (title: string, toDoListId: string) => void
     todoListFilter: FiltersValueType
     removeToDo: (toDoListId: string) => void
@@ -25,6 +27,11 @@ type ToDoListType = {
 export const ToDoList = React.memo( (
     {id, addNewTask, changeToDoListFilter, changeTaskTitle, ...props}: ToDoListType) => {
     console.log('todolist called')
+
+    const dispatch = useDispatch()
+    useEffect(() => {
+        dispatch(setTasksThunk(id))
+    }, [])
     const toDoListFilter = ():TaskType[] => {
         switch (props.todoListFilter) {
             case "completed":
