@@ -1,19 +1,21 @@
 import React, {useCallback, useEffect} from "react";
-import {AddItemForm} from "./AddItemForm";
-import {EditableSpan} from "./EditableSpan";
+import {AddItemForm} from "../../components/AddItemForm";
+import {EditableSpan} from "../../components/EditableSpan";
 import {Button, ButtonGroup} from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteSweepTwoToneIcon from "@material-ui/icons/DeleteSweepTwoTone";
-import {Task} from "./Task";
-import {TaskStatuses, TaskType} from "../api/toDoLists-api";
-import {FiltersValueType} from "../state/toDoLists-reducer";
+import {Task} from "./task/Task";
+import {TaskStatuses} from "../../api/toDoLists-api";
+import {FiltersValueType} from "../../state/toDoLists-reducer";
 import {useDispatch} from "react-redux";
-import {setTasksThunk} from "../state/tasks-reducer";
+import {DomainTaskType, setTasksThunk} from "../../state/tasks-reducer";
+import {RequestStatusType} from "../../state/app-reducer";
 
 type ToDoListType = {
+    entityStatus:RequestStatusType
     id: string
     title: string
-    tasks: Array<TaskType>
+    tasks: Array<DomainTaskType>
     removeTask: (id: string, toDoListId: string) => void
     changeToDoListFilter: (newFilterValue: FiltersValueType, toDoListId: string) => void
     getChangeCheckedTask: (id: string, toDoListId: string, status:TaskStatuses) => void
@@ -25,14 +27,14 @@ type ToDoListType = {
 }
 
 export const ToDoList = React.memo( (
-    {id, addNewTask, changeToDoListFilter, changeTaskTitle, ...props}: ToDoListType) => {
+    {id, addNewTask, changeToDoListFilter, changeTaskTitle, entityStatus, ...props}: ToDoListType) => {
     console.log('todolist called')
 
     const dispatch = useDispatch()
     useEffect(() => {
         dispatch(setTasksThunk(id))
     }, [])
-    const toDoListFilter = ():TaskType[] => {
+    const toDoListFilter = ():DomainTaskType[] => {
         switch (props.todoListFilter) {
             case "completed":
                 return props.tasks.filter(t => t.status === TaskStatuses.Completed)
@@ -68,10 +70,12 @@ export const ToDoList = React.memo( (
         changeToDoListFilter('completed', id),[changeToDoListFilter, id])
 
     return <div>
-        <h3><EditableSpan changeTitle={addNewToDoTitle} title={props.title}/> <IconButton onClick={() => {
+        <h3><EditableSpan entityStatus={entityStatus}  changeTitle={addNewToDoTitle} title={props.title}/> <IconButton
+            disabled={entityStatus === 'loading'}
+            onClick={() => {
             props.removeToDo(id)
         }}><DeleteSweepTwoToneIcon color={"primary"}/></IconButton></h3>
-        <AddItemForm addNewItem={addNewItemTask}/>
+        <AddItemForm entityStatus={entityStatus}  addNewItem={addNewItemTask}/>
         <ul style={{listStyle: 'none'}}>
             {mapTasksElements}
         </ul>

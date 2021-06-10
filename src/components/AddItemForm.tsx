@@ -2,9 +2,11 @@ import React, {ChangeEvent, useState} from 'react';
 import IconButton from "@material-ui/core/IconButton";
 import {TextField} from "@material-ui/core";
 import PlusOneIcon from '@material-ui/icons/PlusOne';
+import {RequestStatusType} from "../state/app-reducer";
 
 export type PropsType = {
     addNewItem: (title: string) => void
+    entityStatus?:RequestStatusType
 }
 
 export const AddItemForm = React.memo( (props: PropsType) => {
@@ -34,7 +36,9 @@ export const AddItemForm = React.memo( (props: PropsType) => {
                            addItem()
                        }
                    }}
-                   value={inputValue}/>
+                   value={inputValue}
+                   disabled={props.entityStatus === 'loading'}
+        />
         <IconButton color={'primary'} onClick={addItem}><PlusOneIcon color={"primary"}/></IconButton>
         <div>
             <span className={'error'}>{error}</span>

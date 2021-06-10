@@ -1,12 +1,8 @@
-import React, {useCallback, useEffect} from 'react';
-import './App.css';
-import {ToDoList} from "./Components/ToDoList";
-import {AddItemForm} from "./Components/AddItemForm";
-import {AppBar, Container, Grid, Paper, Toolbar} from "@material-ui/core";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
-import Button from "@material-ui/core/Button";
-import {Menu} from "@material-ui/icons";
+import {Grid, Paper} from "@material-ui/core";
+import {AddItemForm} from "../components/AddItemForm";
+import React, {useCallback, useEffect} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import {StateType} from "../state/store";
 import {
     addNewToDoListThunk,
     changeToDoListFilter,
@@ -15,15 +11,12 @@ import {
     removeToDoListThunk,
     setToDoListsThunk,
     toDoListCombineType
-} from "./state/toDoLists-reducer";
-import {addNewTaskThunk, removeTaskThunk, TaskStateType, updateTaskThunk} from "./state/tasks-reducer";
-import {useDispatch, useSelector} from "react-redux";
-import {StateType} from "./state/store";
-import {TaskStatuses} from "./api/toDoLists-api";
+} from "../state/toDoLists-reducer";
+import {addNewTaskThunk, removeTaskThunk, TaskStateType, updateTaskThunk} from "../state/tasks-reducer";
+import {TaskStatuses} from "../api/toDoLists-api";
+import {ToDoList} from "./todolist/ToDoList";
 
-
-function App() {
-
+export const ToDoListsList = () => {
     let toDoLists = useSelector<StateType, Array<toDoListCombineType>>(state => state.toDoLists)
     let tasks = useSelector<StateType, TaskStateType>(state => state.tasks)
     let dispatch = useDispatch()
@@ -62,6 +55,7 @@ function App() {
 
     const toDoListComponent = toDoLists.map(tl => {
         return <Grid item key={tl.id}> <Paper elevation={7} style={gridStyle}><ToDoList
+            entityStatus={tl.entityStatus}
             id={tl.id}
             title={tl.title}
             tasks={tasks[tl.id]}
@@ -77,31 +71,12 @@ function App() {
         </Paper>
         </Grid>
     })
-
-    return (
-        <div className="App">
-            <AppBar position="static">
-                <Toolbar style={{justifyContent:'space-between'}}>
-                    <IconButton edge="start" color="inherit" aria-label="menu">
-                        <Menu/>
-                    </IconButton>
-                    <Typography variant="h6">
-                        ToDoLists
-                    </Typography>
-                        <Button variant={'outlined'} color="inherit">Login</Button>
-                </Toolbar>
-            </AppBar>
-            <Container fixed>
-                <Grid container style={gridStyle}>
+    return <>
+        <Grid container style={gridStyle}>
             <AddItemForm addNewItem={AddedToDoList}/>
-                </Grid>
-                <Grid container spacing={5}>
-                {toDoListComponent}
-                </Grid>
-            </Container>
-        </div>
-    );
+        </Grid>
+        <Grid container spacing={5}>
+            {toDoListComponent}
+        </Grid>
+        </>
 }
-
-export default App;
-

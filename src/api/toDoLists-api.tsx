@@ -29,7 +29,7 @@ export enum TaskPriorities {
     Urgently = 3,
     Later = 4
 }
-type ResponseType<D = {}> = {
+export type ResponseType<D = {}> = {
     resultCode: number
     messages: Array<string>
     data: D

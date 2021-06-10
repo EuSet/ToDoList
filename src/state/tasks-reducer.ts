@@ -1,6 +1,8 @@
 import {addToDoList, removeToDoList, setToDoLists} from "./toDoLists-reducer";
 import {tasksAPI, TaskType, UpdateTaskType} from "../api/toDoLists-api";
 import {AppThunk} from "./store";
+import {appSetStatus, RequestStatusType} from "./app-reducer";
+import {handleServerAppError, handleServerNetworkError} from "../utills/error-utills";
 
 export type TasksActionsType = ReturnType<typeof removeTask> |
     ReturnType<typeof addNewTask> |
@@ -8,12 +10,15 @@ export type TasksActionsType = ReturnType<typeof removeTask> |
     ReturnType<typeof addToDoList> |
     ReturnType<typeof setToDoLists> |
     ReturnType<typeof setTasks> |
-    ReturnType<typeof updateTask>
+    ReturnType<typeof updateTask> |
+    ReturnType<typeof changeEntityStatusTask>
 export type TaskStateType = {
-    [key: string]: Array<TaskType>
+    [key: string]: Array<DomainTaskType>
 }
 const initialState: TaskStateType = {}
-
+export type DomainTaskType = TaskType & {
+    entityStatus:RequestStatusType
+}
 export const tasksReducer = (state: TaskStateType = initialState, action: TasksActionsType): TaskStateType => {
     switch (action.type) {
         case "REMOVE_TASK":
@@ -22,7 +27,7 @@ export const tasksReducer = (state: TaskStateType = initialState, action: TasksA
                 ...state
             }
         case "ADD_NEW_TASK":
-            const newTask: TaskType = action.task
+            const newTask: DomainTaskType = {...action.task, entityStatus:'idle'}
             return {
                 ...state, [action.task.todoListId]: [newTask, ...state[action.task.todoListId]]
             }
@@ -49,9 +54,15 @@ export const tasksReducer = (state: TaskStateType = initialState, action: TasksA
             })
             return stateCopy
         case "SET_TASK":
+            const tasks:DomainTaskType[] = action.tasks.map(t => ({...t, entityStatus:'idle'}))
             return {
                 ...state,
-                [action.toDoListId]: [...action.tasks]
+                [action.toDoListId]: [...tasks]
+            }
+        case "CHANGE_ENTITY_STATUS":
+            return {
+                ...state,
+                [action.toDoListId]:[...state[action.toDoListId].map(t => t.id === action.id ? ({...t, entityStatus: action.status }) : t)]
             }
         default:
             return state
@@ -70,13 +81,17 @@ export const updateTask = (id: string, toDoListId: string, model: UpdateModelTas
 export const setTasks = (tasks: Array<TaskType>, toDoListId: string) => {
     return {type: 'SET_TASK', tasks, toDoListId} as const
 }
-
+export const changeEntityStatusTask = (id: string, toDoListId: string, status:RequestStatusType) => {
+    return {type:'CHANGE_ENTITY_STATUS', id, toDoListId, status} as const
+}
 export const setTasksThunk = (toDoListId: string): AppThunk => async dispatch => {
     try {
+        dispatch(appSetStatus('loading'))
         const res = await tasksAPI.getTasks(toDoListId)
         dispatch(setTasks(res.data.items, toDoListId))
+        dispatch(appSetStatus('idle'))
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 }
 export type UpdateModelTaskType = {
@@ -96,28 +111,47 @@ export const updateTaskThunk = (toDoListId: string, id: string, model: UpdateMod
             ...model
         }
         try {
-            await tasksAPI.updateTaskTitle(toDoListId, id, modelTask)
-            dispatch(updateTask(id, toDoListId, model))
+            dispatch(changeEntityStatusTask(id, toDoListId, 'loading' ))
+            dispatch(appSetStatus('loading'))
+            const res = await tasksAPI.updateTaskTitle(toDoListId, id, modelTask)
+            if(res.data.resultCode === 0){
+                dispatch(updateTask(id, toDoListId, model))
+                dispatch(appSetStatus('succeeded'))
+                dispatch(changeEntityStatusTask(id, toDoListId, 'idle' ))
+            } else {
+                handleServerAppError(res.data, dispatch)
+                dispatch(changeEntityStatusTask(id, toDoListId, 'idle' ))
+            }
+
         } catch (e) {
-            throw new Error(e)
+            handleServerNetworkError(e, dispatch)
+            dispatch(changeEntityStatusTask(id, toDoListId, 'idle' ))
         }
 
     }
 }
 export const addNewTaskThunk = (title: string, toDoListId: string): AppThunk => async dispatch => {
     try {
+        dispatch(appSetStatus('loading'))
         const res = await tasksAPI.createNewTask(toDoListId, title)
-        dispatch(addNewTask(res.data.data.item))
+        if(res.data.resultCode === 0){
+            dispatch(addNewTask(res.data.data.item))
+            dispatch(appSetStatus('succeeded'))
+        } else {
+            handleServerAppError(res.data, dispatch)
+        }
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 
 }
 export const removeTaskThunk = (toDoListId: string, id: string): AppThunk => async dispatch => {
     try {
+        dispatch(changeEntityStatusTask(id, toDoListId, 'loading' ))
+        dispatch(appSetStatus('loading'))
         await tasksAPI.deleteTask(toDoListId, id)
         dispatch(removeTask(id, toDoListId))
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 }

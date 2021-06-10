@@ -1,7 +1,6 @@
-/*.App {*/
-/*  padding: 30px;*/
-/*  display: flex;*/
-/*}*/
+.App {
+  position: relative;
+}
 
 /*.App > div {*/
 /*  margin-right: 50px;*/

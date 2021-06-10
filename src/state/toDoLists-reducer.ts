@@ -1,15 +1,19 @@
 import {todolistsAPI, ToDoListType} from "../api/toDoLists-api";
 import {AppThunk} from "./store";
+import {appSetStatus, RequestStatusType} from "./app-reducer";
+import {handleServerAppError, handleServerNetworkError} from "../utills/error-utills";
 
 export type ToDoActionsType =
     ReturnType<typeof removeToDoList> |
     ReturnType<typeof addToDoList> |
     ReturnType<typeof changeToDoListItem> |
     ReturnType<typeof changeToDoListFilter> |
-    ReturnType<typeof setToDoLists>
+    ReturnType<typeof setToDoLists> |
+    ReturnType<typeof changeTodolistEntityStatus>
 export type FiltersValueType = "all" | "active" | "completed"
 export type toDoListCombineType = ToDoListType & {
     filter: FiltersValueType
+    entityStatus: RequestStatusType
 }
 const initialState: Array<toDoListCombineType> = []
 export const toDoListsReducer = (toDoLists: Array<toDoListCombineType> = initialState, action: ToDoActionsType): Array<toDoListCombineType> => {
@@ -17,7 +21,7 @@ export const toDoListsReducer = (toDoLists: Array<toDoListCombineType> = initial
         case "REMOVE_TO_DO_LIST":
             return toDoLists.filter(t => t.id !== action.toDoListId)
         case "ADD_TO_DO_LIST":
-            const newToDoList: toDoListCombineType = {...action.toDo, filter: 'all'}
+            const newToDoList: toDoListCombineType = {...action.toDo, filter: 'all', entityStatus:'idle'}
             return [newToDoList, ...toDoLists]
         case "CHANGE_TO_DO_LIST_ITEM":
             return toDoLists.map(t => t.id === action.toDoListId ?
@@ -26,7 +30,10 @@ export const toDoListsReducer = (toDoLists: Array<toDoListCombineType> = initial
             return toDoLists.map(tl => tl.id === action.toDoListId ?
                 {...tl, filter: action.newFilterValue} : tl)
         case "SET_TO_DO_LISTS":
-            return action.toDoLists.map(t => ({...t, filter: 'all'}))
+            return action.toDoLists.map(t => ({...t, filter: 'all', entityStatus:'idle'}))
+        case "CHANGE_ENTITY_STATUS":
+            return toDoLists.map(tl => tl.id === action.id ?
+                {...tl, entityStatus: action.status} : tl)
         default:
             return toDoLists
     }
@@ -47,38 +54,58 @@ export const changeToDoListFilter = (newFilterValue: FiltersValueType, toDoListI
 export const setToDoLists = (toDoLists: Array<ToDoListType>) => {
     return {type: 'SET_TO_DO_LISTS', toDoLists} as const
 }
-
+export const changeTodolistEntityStatus = (id:string, status:RequestStatusType) => {
+    return {type:'CHANGE_ENTITY_STATUS', id, status} as const
+}
 export const setToDoListsThunk = (): AppThunk => async dispatch => {
     try {
+        dispatch(appSetStatus('loading'))
         const res = await todolistsAPI.getToDolists()
         dispatch(setToDoLists(res.data))
+        dispatch(appSetStatus('idle'))
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 }
 
 export const addNewToDoListThunk = (title: string): AppThunk => async dispatch => {
     try {
+        dispatch(appSetStatus('loading'))
         const res = await todolistsAPI.createNewToDoList(title)
-        dispatch(addToDoList(res.data.data.item))
+        if(res.data.resultCode === 0){
+            dispatch(addToDoList(res.data.data.item))
+            dispatch(appSetStatus('succeeded'))
+        } else{
+            handleServerAppError(res.data, dispatch)
+        }
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 }
 
 export const changeToDoListTitleThunk = (toDoListId: string, title: string): AppThunk => async dispatch => {
     try {
-        await todolistsAPI.updateToDoListTitle(toDoListId, title)
-        dispatch(changeToDoListItem(title, toDoListId))
+        dispatch(appSetStatus('loading'))
+        const res = await todolistsAPI.updateToDoListTitle(toDoListId, title)
+        if(res.data.resultCode === 0){
+            dispatch(changeToDoListItem(title, toDoListId))
+            dispatch(appSetStatus('idle'))
+        } else {
+            handleServerAppError(res.data, dispatch)
+        }
+
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 }
 export const removeToDoListThunk = (toDoListId: string): AppThunk => async dispatch => {
     try {
+        dispatch(appSetStatus('loading'))
+        dispatch(changeTodolistEntityStatus(toDoListId, "loading"))
         await todolistsAPI.deleteToDoList(toDoListId)
         dispatch(removeToDoList(toDoListId))
+        dispatch(appSetStatus('idle'))
     } catch (e) {
-        throw new Error(e)
+        handleServerNetworkError(e, dispatch)
     }
 }

@@ -1,18 +1,22 @@
 import React, {useState} from "react";
 import {TextField} from "@material-ui/core";
+import {RequestStatusType} from "../state/app-reducer";
 
 
 type PropsType = {
     title: string
     changeTitle: (title: string) => void
+    entityStatus?:RequestStatusType
 }
 export const EditableSpan = React.memo((props: PropsType) => {
     console.log('EditableSpan')
     const [editMode, setEditMode] = useState<boolean>(false)
     const [title, setTitle] = useState<string>(props.title)
     const onEditMode = () => {
-        setEditMode(true)
-        setTitle(props.title)
+        if(props.entityStatus !== 'loading'){
+            setEditMode(true)
+            setTitle(props.title)
+        }
     }
     const offEditMode = () => {
         setEditMode(false)
