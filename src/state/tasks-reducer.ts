@@ -151,6 +151,7 @@ export const removeTaskThunk = (toDoListId: string, id: string): AppThunk => asy
         dispatch(appSetStatus('loading'))
         await tasksAPI.deleteTask(toDoListId, id)
         dispatch(removeTask(id, toDoListId))
+        dispatch(appSetStatus('idle'))
     } catch (e) {
         handleServerNetworkError(e, dispatch)
     }

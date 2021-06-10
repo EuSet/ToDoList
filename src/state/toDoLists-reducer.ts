@@ -32,8 +32,7 @@ export const toDoListsReducer = (toDoLists: Array<toDoListCombineType> = initial
         case "SET_TO_DO_LISTS":
             return action.toDoLists.map(t => ({...t, filter: 'all', entityStatus:'idle'}))
         case "CHANGE_ENTITY_STATUS":
-            return toDoLists.map(tl => tl.id === action.id ?
-                {...tl, entityStatus: action.status} : tl)
+            return toDoLists.map(tl => tl.id === action.toDoListId ? {...tl, entityStatus: action.status} : tl)
         default:
             return toDoLists
     }
@@ -54,8 +53,8 @@ export const changeToDoListFilter = (newFilterValue: FiltersValueType, toDoListI
 export const setToDoLists = (toDoLists: Array<ToDoListType>) => {
     return {type: 'SET_TO_DO_LISTS', toDoLists} as const
 }
-export const changeTodolistEntityStatus = (id:string, status:RequestStatusType) => {
-    return {type:'CHANGE_ENTITY_STATUS', id, status} as const
+export const changeTodolistEntityStatus = (toDoListId:string, status:RequestStatusType) => {
+    return {type:'CHANGE_ENTITY_STATUS', toDoListId, status} as const
 }
 export const setToDoListsThunk = (): AppThunk => async dispatch => {
     try {
@@ -89,10 +88,11 @@ export const changeToDoListTitleThunk = (toDoListId: string, title: string): App
         const res = await todolistsAPI.updateToDoListTitle(toDoListId, title)
         if(res.data.resultCode === 0){
             dispatch(changeToDoListItem(title, toDoListId))
-            dispatch(appSetStatus('idle'))
+            dispatch(appSetStatus('succeeded'))
         } else {
             handleServerAppError(res.data, dispatch)
         }
+        dispatch(appSetStatus('failed'))
 
     } catch (e) {
         handleServerNetworkError(e, dispatch)
@@ -104,7 +104,7 @@ export const removeToDoListThunk = (toDoListId: string): AppThunk => async dispa
         dispatch(changeTodolistEntityStatus(toDoListId, "loading"))
         await todolistsAPI.deleteToDoList(toDoListId)
         dispatch(removeToDoList(toDoListId))
-        dispatch(appSetStatus('idle'))
+        dispatch(appSetStatus('succeeded'))
     } catch (e) {
         handleServerNetworkError(e, dispatch)
     }
