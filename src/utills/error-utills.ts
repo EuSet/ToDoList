@@ -3,7 +3,7 @@ import {appSetError, appSetStatus} from "../state/app-reducer";
 import {AppActionsType, StateType} from "../state/store";
 import {ThunkDispatch} from "redux-thunk";
 
-export const handleServerAppError = (data: ResponseType, dispatch:ThunkDispatch<StateType, unknown, AppActionsType>) => {
+export const handleServerAppError = <T>(data: ResponseType<T>, dispatch:ThunkDispatch<StateType, unknown, AppActionsType>) => {
     if (data.messages.length) {
         dispatch(appSetError(data.messages[0]))
     } else {

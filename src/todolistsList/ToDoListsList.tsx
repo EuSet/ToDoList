@@ -15,14 +15,21 @@ import {
 import {addNewTaskThunk, removeTaskThunk, TaskStateType, updateTaskThunk} from "../state/tasks-reducer";
 import {TaskStatuses} from "../api/toDoLists-api";
 import {ToDoList} from "./todolist/ToDoList";
+import {Redirect} from "react-router-dom";
 
 export const ToDoListsList = () => {
+    const isLoggedIn = useSelector<StateType, boolean>(state => state.auth.isLoggedIn)
     let toDoLists = useSelector<StateType, Array<toDoListCombineType>>(state => state.toDoLists)
     let tasks = useSelector<StateType, TaskStateType>(state => state.tasks)
     let dispatch = useDispatch()
+
     useEffect(() => {
+        if(!isLoggedIn){
+            return;
+        }
         dispatch(setToDoListsThunk())
     }, [])
+
     const removedTask = useCallback((id: string, toDoListId: string) => {
         dispatch(removeTaskThunk(toDoListId, id))
 
@@ -52,7 +59,9 @@ export const ToDoListsList = () => {
     },[dispatch])
 
     const gridStyle = {padding:'20px'}
-
+    if(!isLoggedIn){
+        return <Redirect to={'/login'}/>
+    }
     const toDoListComponent = toDoLists.map(tl => {
         return <Grid item key={tl.id}> <Paper elevation={7} style={gridStyle}><ToDoList
             entityStatus={tl.entityStatus}

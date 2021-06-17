@@ -6,7 +6,7 @@ const settings = {
         'API-KEY': 'bd25c1b4-72d5-4540-912d-5ef4c71f0544'
     }
 }
-const instance = axios.create({
+export const instance = axios.create({
     baseURL: 'https://social-network.samuraijs.com/api/1.1',
     ...settings
 })
@@ -91,3 +91,4 @@ export const tasksAPI = {
         return instance.put<ResponseType<{item:TaskType}>>(`/todo-lists/${todolistId}/tasks/${taskId}`, model )
     }
 }
+
