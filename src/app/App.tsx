@@ -37,6 +37,7 @@ function App() {
                         <Route path={'/login'} render={() => <Login/>}/>
                         <Route exact path={'/'} render={() => <ToDoListsList/>}/>
                         <Route path={'/404'} render={() => <h1>404: PAGE NOT FOUND</h1>}/>
+                        <Redirect from={'/ToDoList'} to={'/login'}/>
                         <Redirect from={'*'} to={'/404'}/>
                     </Switch>
                 </Container>
