@@ -12,34 +12,34 @@ beforeEach(() => {
             {
                 id: '1', status: TaskStatuses.New, title: 'HTML', addedDate: '',
                 completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
-                startDate:'', todoListId:toDoListId1
+                startDate:'', entityStatus:'idle', todoListId:toDoListId1
             },
             {
                 id: '2', status: TaskStatuses.Completed, title: 'CSS', addedDate: '',
                 completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
-                startDate:'', todoListId:toDoListId1
+                startDate:'', entityStatus:'idle', todoListId:toDoListId1
             },
             {
                 id: '3', status: TaskStatuses.New, title: 'React', addedDate: '',
                 completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
-                startDate:'', todoListId:toDoListId1
+                startDate:'', entityStatus:'idle', todoListId:toDoListId1
             }
         ],
         "todolistId2": [
             {
                 id: '1', status: TaskStatuses.New, title: 'Beer', addedDate: '',
                 completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
-                startDate:'', todoListId:toDoListId2
+                startDate:'', entityStatus:'idle', todoListId:toDoListId2
             },
             {
                 id: '2', status: TaskStatuses.Completed, title: 'Fish', addedDate: '',
                 completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
-                startDate:'', todoListId:toDoListId2
+                startDate:'', entityStatus:'idle', todoListId:toDoListId2
             },
             {
                 id: '3', status: TaskStatuses.New, title: 'Chips', addedDate: '',
                 completed: false, deadline: '', description: '', order:0, priority:TaskPriorities.Urgently,
-                startDate:'', todoListId:toDoListId2
+                startDate:'', entityStatus:'idle', todoListId:toDoListId2
             }
         ]
     };

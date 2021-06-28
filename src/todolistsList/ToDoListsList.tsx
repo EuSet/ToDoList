@@ -55,7 +55,7 @@ export const ToDoListsList = () => {
         dispatch(changeToDoListTitleThunk(toDoListId, title))
     },[dispatch])
     const changedToDoListFilter = useCallback((newFilterValue: FiltersValueType, toDoListId: string) => {
-        dispatch(changeToDoListFilter(newFilterValue, toDoListId))
+        dispatch(changeToDoListFilter({newFilterValue, toDoListId}))
     },[dispatch])
 
     const gridStyle = {padding:'20px'}
