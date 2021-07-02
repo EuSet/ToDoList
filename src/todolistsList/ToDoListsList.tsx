@@ -45,13 +45,13 @@ export const ToDoListsList = () => {
     },[dispatch])
 
     const removeToDo = useCallback((toDoListId: string) => {
-        dispatch(removeToDoListThunk(toDoListId))
+        dispatch(removeToDoListThunk({toDoListId}))
     },[dispatch])
     const AddedToDoList = useCallback((title: string) => {
         dispatch(addNewToDoListThunk({title}))
     },[dispatch])
     const changedToDoListItem = useCallback((title: string, toDoListId: string) => {
-        dispatch(changeToDoListTitleThunk(toDoListId, title))
+        dispatch(changeToDoListTitleThunk({toDoListId, title}))
     },[dispatch])
     const changedToDoListFilter = useCallback((newFilterValue: FiltersValueType, toDoListId: string) => {
         dispatch(changeToDoListFilter({newFilterValue, toDoListId}))
