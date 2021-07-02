@@ -1,8 +1,8 @@
 import {v1} from 'uuid';
 import {
-    addToDoList, changeToDoListFilter, changeToDoListItem,
-    FiltersValueType,
-    removeToDoList, setToDoLists,
+    addNewToDoListThunk,
+    changeToDoListFilter, changeToDoListTitleThunk,
+    FiltersValueType, removeToDoListThunk, setToDoListsThunk,
     toDoListCombineType,
     toDoListsReducer
 } from "./toDoLists-reducer";
@@ -23,7 +23,7 @@ beforeEach(() => {
 
 test('correct todolist should be removed', () => {
 
-    const action = removeToDoList({toDoListId:todolistId1})
+    const action = removeToDoListThunk.fulfilled({toDoListId:todolistId1}, '', {toDoListId:todolistId1})
     console.log(startState)
     const endState = toDoListsReducer(startState, action)
 
@@ -37,14 +37,14 @@ test('correct todolist should be added', () => {
     const newToDo:ToDoListType = {
         id: 'toDoListId1', title: 'NewToDOList',  addedDate:'', order:0
     }
-    const endState = toDoListsReducer(startState, addToDoList({toDo:newToDo}))
+    const endState = toDoListsReducer(startState, addNewToDoListThunk.fulfilled({toDo:newToDo}, '', {title:newToDo.title}))
 
     expect(endState.length).toBe(3);
     expect(endState[0].title).toBe('NewToDOList');
 });
 test('correct todolist should change name', () => {
-
-    const endState = toDoListsReducer(startState, changeToDoListItem({title:"New Todolist",toDoListId: todolistId2}))
+    const param = {title:"New Todolist",toDoListId: todolistId2}
+    const endState = toDoListsReducer(startState, changeToDoListTitleThunk.fulfilled(param, '', param))
     expect(endState[0].title).toBe("What to learn");
     expect(endState[1].title).toBe("New Todolist");
 })
@@ -58,7 +58,8 @@ test('correct filter of todolist should be changed', () => {
     expect(endState[1].filter).toBe(newFilter);
 });
 test('todolists should be set in state', () => {
-    const newState = toDoListsReducer([],setToDoLists({toDoLists: startState}))
+    const action = setToDoListsThunk.fulfilled({toDoLists: startState}, '')
+    const newState = toDoListsReducer([], action)
     expect(newState.length).toBe(2)
     expect(newState[0].filter).toBe('all')
 })

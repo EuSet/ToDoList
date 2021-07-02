@@ -31,25 +31,24 @@ export const ToDoListsList = () => {
     }, [])
 
     const removedTask = useCallback((id: string, toDoListId: string) => {
-        dispatch(removeTaskThunk(toDoListId, id))
+        dispatch(removeTaskThunk({toDoListId, id}))
 
     },[dispatch])
     const getChangedCheckedTask = useCallback((id: string, toDoListId: string, status:TaskStatuses) => {
-        dispatch(updateTaskThunk(toDoListId, id, {status}))
-
-    },[dispatch])
-    const addedNewTask = useCallback((title: string, toDoListId: string) => {
-        dispatch(addNewTaskThunk(title, toDoListId))
+        dispatch(updateTaskThunk({toDoListId, id, model:{status}}))
     },[dispatch])
     const changedTaskTitle = useCallback((title: string, id: string, toDoListId: string) => {
-        dispatch(updateTaskThunk(id, toDoListId, {title}))
+        dispatch(updateTaskThunk({toDoListId, id, model:{title}}))
+    },[dispatch])
+    const addedNewTask = useCallback((title: string, toDoListId: string) => {
+        dispatch(addNewTaskThunk({title, toDoListId}))
     },[dispatch])
 
     const removeToDo = useCallback((toDoListId: string) => {
         dispatch(removeToDoListThunk(toDoListId))
     },[dispatch])
     const AddedToDoList = useCallback((title: string) => {
-        dispatch(addNewToDoListThunk(title))
+        dispatch(addNewToDoListThunk({title}))
     },[dispatch])
     const changedToDoListItem = useCallback((title: string, toDoListId: string) => {
         dispatch(changeToDoListTitleThunk(toDoListId, title))

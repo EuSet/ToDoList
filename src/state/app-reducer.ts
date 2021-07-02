@@ -26,7 +26,7 @@ export const appSlice = createSlice({
         setIsInitialized(state, action:PayloadAction<{value:boolean}>) {
             state.isInitialized = action.payload.value
         }
-    }
+    },
 })
 export const appReducer = appSlice.reducer
 export const {appSetStatus, appSetError, setIsInitialized} = appSlice.actions

@@ -15,7 +15,7 @@ type PropsType = {
 }
 export const Task = React.memo(({t, id, changeTitle, ...props}:PropsType) => {
     const onChangeTaskTitle = useCallback((newTitle:string) => {
-        changeTitle(newTitle, id, t.id)
+        changeTitle(newTitle, t.id, id)
     },[id, changeTitle, t.id])
     return <div style={t.status === TaskStatuses.Completed ? {opacity: '0.5'} : {}} key={t.id}><Checkbox
         disabled={t.entityStatus === "loading"} color={'primary'} onClick={() => {
